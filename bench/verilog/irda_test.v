@@ -234,7 +234,7 @@ begin
 	$display("%m : %t : sending : %b", $time, 8'b01000101);
 	cycle(1, 0, 8'b01000101);
 	#100;
-	wait (top.uart.regs.state==0 && top.uart.regs.transmitter.tf_count==0);
+	wait (top.uart.regs.tstate==0 && top.uart.regs.transmitter.tf_count==0);
 end
 endtask // test_sir_tx
 
@@ -269,11 +269,11 @@ endtask // test_sir_rx
 
 // Transmitter
 initial
-  test_fir_tx;
+  test_sir_tx;
 
 // Receiver
 initial
-  test_fir_rx;
+  test_sir_rx;
   
 initial
 begin

@@ -4,6 +4,13 @@
 
 // Defines
 
+// if IRDA_SIR_ONLY is defined then only the
+// SIR (slow, async, up to 115kb) version will be
+// implemented.
+// Generally it wraps the the uart16550 core with
+// LED bit encoding and decoding.
+`define IRDA_SIR_ONLY
+
 // IRDA_MASTER CONTROL REGISTER
 `define	IRDA_MASTER			4'd8
 
