@@ -115,13 +115,13 @@ begin
 	case (state)
 	st_idle :  // between frames
 	  begin
-		  dc_restart <= #1 0;
-		  bs_restart <= #1 1;
+		  dc_restart 	 <= #1 0;
+		  bs_restart 	 <= #1 1;
+		  sip_o 			 <= #1 0;
 			if (data_available) begin
 				state 		  <= #1 st_sta_count;
 				mux_select 	  <= #1 2'b01; // ST signal selection
 				ofdl_c 		  <= #1 0;
-				sip_o 		  <= #1 0;
 				st_restart 	  <= #1 0;
 				st_shift 	  <= #1 1;
 				counter 		  <= #1 15; // two start flags in each frame
@@ -129,6 +129,7 @@ begin
 			else begin
 				st_restart 	  <= #1 1;
 				st_shift 	  <= #1 0;
+				mux_select 	  <= #1 2'b0; /// break
 			end
 			crcndata <= #1 0;
 		end
@@ -152,7 +153,7 @@ begin
 	st_send_data :
 	  begin
 		  //// DEBUG
-		  $display("%m, %t, sending: %b", $time, mir_tx_o);
+		 /// $display("%m, %t, sending: %b", $time, mir_tx_o);
 		  //// END DEBUG
 			st_restart <= #1 1;
 			// conditions for next step (CRC)

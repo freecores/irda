@@ -161,7 +161,7 @@ irda_mir_tx mir_tx(
 			.f_ofdlr(			f_ofdlr			),
 			.mir_tx_o(			mir_tx_o			),
 			.sip_end_i(			sip_end_i		),
-			.sip_o(				sip_o				),
+			.sip_o(				mir_sip_o		),
 			.data_o(          data_o         ),
 			.data_available(	data_available	),
 			.dc_restart(		dc_restart		),
@@ -247,7 +247,7 @@ irda_fir_tx fir_tx(
 		.count_mode(		count_mode			),
 		.f_fcr(				f_fcr					),
 		.f_ofdlr(			f_ofdlr				),
-		.sip_o(				sip_o					),
+		.sip_o(				fir_sip_o			),
 		.sip_end_i(			sip_end_i			),
 		.fir_tx_o(			fir_tx_o				),
 		.data_available(	data_available		),
@@ -258,10 +258,11 @@ irda_fir_tx fir_tx(
 
 // SIP signal generator
 irda_sip_gen sip_gen(
-		.clk(					wb_clk_i					),
+		.clk(					wb_clk_i				),
 		.wb_rst_i(			wb_rst_i				),
-		.fast_enable(		fast_enable			),
-		.sip_o(				sip_o					),
+//		.fast_enable(		fast_enable			),
+		.mir_sip_o(			mir_sip_o			),
+		.fir_sip_o(			fir_sip_o			),
 		.sip_end_i(			sip_end_i			),
 		.sip_gen_o(			sip_gen_o			)
 	);

@@ -102,7 +102,6 @@ begin
 		temp31 			  <= #1 0;
 		mir_crc_error 	  <= #1 0;
 		bitcount 		  <= #1 0;
-		rxfifo_add 		  <= #1 0;
 		std_restart 	  <= #1 1;
 		clrcrc 			  <= #1 0;
 		bds_restart 	  <= #1 0;	
@@ -114,7 +113,6 @@ begin
 		rxfifo_dat_i 	  <= #1 0;
 		temp31 			  <= #1 0;
 		mir_crc_error 	  <= #1 0;
-		rxfifo_add 		  <= #1 0;
 		clrcrc 			  <= #1 0;
 		std_restart 	  <= #1 1;
 		bds_restart      <= #1 1;
@@ -160,7 +158,6 @@ begin
 					/// END DEBUG
 					rxstate 			 <= #1 st_sto_detected;
 					rxfifo_dat_i 	 <= #1 {bds_o, temp31}; // push to fifo
-					rxfifo_add 		 <= #1 1;
 				end else
 				if (bds_is_data_bit) begin  // if good bit
 					bitcount <= #1 bitcount + 1;
@@ -169,23 +166,19 @@ begin
 						$display("%m, %t, Pushing %b", $time,{bds_o, temp31} );
 						/// END DEBUG						
 						 rxfifo_dat_i 	 <= #1 {bds_o, temp31}; // push to fifo
-						rxfifo_add 		 <= #1 1;
 						bit_pos 			 <= #1 0;
 						temp31 			 <= #1 0;
 					end else begin 
 						temp31[bit_pos] 	 <= #1 bds_o;
 						bit_pos 				 <= #1 bit_pos + 1;
-						rxfifo_add 			 <= #1 0;
 						rxfifo_dat_i 		 <= #1 0;
 					end
 				end else begin
-					rxfifo_add 		 <= #1 0;
 					rxfifo_dat_i 	 <= #1 0;
 				end // else: !if(bds_is_data_bit)
 		  end
 		st_sto_detected :
 			begin
-				rxfifo_add 	  <= #1 0;
 				if (crc16_par_o==16'b0001_1101_0000_1111) begin // if the crc is correct
 					mir_crc_error 	  <= #1 0;
 				end else begin
@@ -196,9 +189,31 @@ begin
 		default :
 			rxstate <= #1 st_idle; // should never get here
 	endcase
+end // always FSM
 
-end
+// rxfifo_add handler
+always @(posedge clk or posedge wb_rst_i)
+begin
+	if (wb_rst_i) begin
+		rxfifo_add <= #1 0;
+	end else if (brd_active | mir_rx_restart) begin
+		rxfifo_add <= #1 0;
+	end else if (rxfifo_add) begin
+		rxfifo_add <= #1 0;
+	end else if (mir_rxbit_enable && rxstate == st_data) begin
+		if (std_st_detected) begin
+			rxfifo_add <= #1 1;
+		end else if (bds_is_data_bit && bit_pos==31) begin
+			rxfifo_add <= #1 1;
+		end else begin
+			rxfifo_add <= #1 0;
+		end
+	end
+end // always rxfifo_add
 
+	
+		
+	  
 
 
 assign mir_ifdlr_o = bitcount[18:3];
