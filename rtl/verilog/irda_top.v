@@ -274,9 +274,9 @@ irda_fir_rx fir_rx(
 
 //Uart  module is not yet well inserted into the code
 uart_top	uart(
-		.clk(				wb_clk_i			),
+		.wb_clk_i(		wb_clk_i			),
 		.wb_rst_i(		wb_rst_i		),
-		.wb_addr_i(		u_wb_addr_i ),
+		.wb_adr_i(		u_wb_addr_i ),
 		.wb_dat_i(		u_wb_dat_i	),
 		.wb_dat_o(		u_wb_dat_o	),
 		.wb_we_i(		u_wb_we_i	),
