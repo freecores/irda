@@ -1,4 +1,5 @@
 `include "irda_defines.v"
+`include "uart_defines.v"
 
 module irda_test;
 
@@ -82,45 +83,122 @@ always
 //always
 //	@(posedge top.mir_tx.mir_txbit_enable) $display($time, "  > %b", top.mir_tx.mir_tx_o);
 
+
+/// MIR TEST TASK
+task test_mir_tx;
+
 // MAIN TEST ROUTINE
-initial
 begin
-//	$monitor(">> %d, %b", $time, top.mir_tx_o);
+	//	$monitor(">> %d, %b", $time, top.mir_tx_o);
 	#1		wb_rst_i = 1;
 	#10	wb_rst_i = 0;
-			wb_stb_i = 0;
-			wb_cyc_i = 0;
-			wb_we_i = 0;
-			cycle(1, `IRDA_MASTER, 32'b00011011);
-			cycle(1, `IRDA_F_CDR, 32'd200000);
-			cycle(1, `IRDA_F_FCR, 32'b10000011);
-//			cycle(1, `IRDA_F_LCR, 32'b00);
-//			cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
-//	$display("%m, %t, Sending %b", $time, 32'hA7F1F5CC);
+	wb_stb_i = 0;
+	wb_cyc_i = 0;
+	wb_we_i = 0;
+	cycle(1, `IRDA_MASTER, 32'b00011011);
+	cycle(1, `IRDA_F_CDR, 32'd200000);
+	cycle(1, `IRDA_F_FCR, 32'b10000011);
+	//			cycle(1, `IRDA_F_LCR, 32'b00);
+	//			cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+	//	$display("%m, %t, Sending %b", $time, 32'hA7F1F5CC);
 	cycle(1, `IRDA_F_LCR, 32'b10); // set count outgoing data mode
 	cycle(1, `IRDA_F_OFDLR, 16'd3); // 5 bytes to send
 	
-			cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
-			cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
-			#300;
-			wait (top.mir_tx.state == 0);	
-			cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
-			#300;
-			wait (top.mir_tx.state == 0);
-			#200;
+	cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	#300;
+	wait (top.mir_tx.state == 0);	
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+	#300;
+	wait (top.mir_tx.state == 0);
+	#200;
 	$finish;
 end // initial begin
+endtask // test_mir_tx
+
+
+task test_mir_rx;
+begin
+	#10	wb1_stb_i = 0;
+	wb1_cyc_i = 0;
+	wb1_we_i = 0;
+	cycle1(1, `IRDA_MASTER, 32'b00011001);
+	cycle1(1, `IRDA_F_CDR, 32'd200000);
+	cycle1(1, `IRDA_F_FCR, 32'b10000011);
+	cycle1(1, `IRDA_F_LCR, 32'b00);
+end
+
+endtask
+
+//// SIR TEST TASK
+
+task test_sir_tx;
+// MAIN TEST ROUTINE for transmitter
+begin
+	#1		wb_rst_i = 1;
+	#10	wb_rst_i = 0;
+	wb_stb_i = 0;
+	wb_cyc_i = 0;
+	wb_we_i = 0;
+	cycle(1, `IRDA_MASTER, 32'b00011011); //MIR (fast) mode
+	cycle(1, `IRDA_F_CDR, 32'd200000);
+	cycle(1, `IRDA_MASTER, 32'b00000011); //SIR mode
+	//write to lcr. set bit 7
+	//wb_cyc_ir = 1;
+	cycle(1, `UART_REG_LC, 8'b10011011);
+	// set dl to divide by 3
+	cycle(1, `UART_REG_DL1, 8'd2);
+	@(posedge clk);
+	@(posedge clk);
+	// restore normal registers
+	cycle(1, `UART_REG_LC, 8'b00011011);
+	$display("%m : %t : sending : %b", $time, 8'b01101011);
+	cycle(1, 0, 8'b01101011);
+	@(posedge clk);
+	@(posedge clk);
+	$display("%m : %t : sending : %b", $time, 8'b01000101);
+	cycle(1, 0, 8'b01000101);
+	#100;
+	wait (top.uart.regs.state==0 && top.uart.regs.transmitter.tf_count==0);
+end
+endtask // test_sir_tx
+
 
 // for the rx irda
-initial
-  begin
-	  #10	wb1_stb_i = 0;
-			wb1_cyc_i = 0;
-			wb1_we_i = 0;
-			cycle1(1, `IRDA_MASTER, 32'b00011001);
-			cycle1(1, `IRDA_F_CDR, 32'd200000);
-			cycle1(1, `IRDA_F_FCR, 32'b10000011);
-			cycle1(1, `IRDA_F_LCR, 32'b00);
+task test_sir_rx;
+begin
+	#10	wb1_stb_i = 0;
+	wb1_cyc_i = 0;
+	wb1_we_i = 0;
+	cycle1(1, `IRDA_MASTER, 32'b00011011); //MIR (fast) mode
+	cycle1(1, `IRDA_F_CDR, 32'd200000);
+	cycle1(1, `IRDA_MASTER, 32'b00000001); //SIR mode
+	cycle1(1, `UART_REG_LC, 8'b10011011);
+	// set dl to divide by 3
+	cycle1(1, `UART_REG_DL1, 8'd2);
+	@(posedge clk);
+	@(posedge clk);
+	// restore normal registers
+	cycle1(1, `UART_REG_LC, 8'b00011011);
+	wait(toprx.uart.regs.receiver.rf_count == 2);
+	cycle1(0, 0, 0);
+	$display("%m : %t : Data out: %b", $time, wb1_dat_o);
+	@(posedge clk);
+	cycle1(0, 0, 0);
+	$display("%m : %t : Data out: %b", $time, wb1_dat_o);
+	$display("%m : Finish");
+	$finish;
+	
 end
+endtask // test_sir_rx
+
+// Transmitter
+initial
+  test_sir_tx;
+
+// Receiver
+initial
+  test_sir_rx;
+  
 
 endmodule

@@ -88,6 +88,9 @@ reg [4:0] 	bit_pos; //
 reg [1:0] 	rxstate;
 reg [18:0] 	bitcount;
 
+// break detection handling 
+wire			brd_active = brd_o && (rxstate != st_idle); // break detection has only meaning when receiver is not idle
+
 always @(posedge clk or posedge wb_rst_i)
 begin
 	if (wb_rst_i) begin
@@ -103,14 +106,13 @@ begin
 		clrcrc 			  <= #1 0;
 		bds_restart 	  <= #1 0;	
 	end
-	else if (brd_o | mir_rx_restart) begin
+	else if (brd_active | mir_rx_restart) begin
 		rxstate 			  <= #1 st_idle;
 		counter8 		  <= #1 0;
 		bit_pos 			  <= #1 0;
 		rxfifo_dat_i 	  <= #1 0;
 		temp31 			  <= #1 0;
 		mir_crc_error 	  <= #1 0;
-		bitcount 		  <= #1 0;
 		rxfifo_add 		  <= #1 0;
 		clrcrc 			  <= #1 0;
 		std_restart 	  <= #1 1;
@@ -126,10 +128,10 @@ begin
 			  begin
 				  clrcrc 	  <= #1 1;
 				  rxstate 	  <= #1 st_stx_detected;
+				  bitcount 	  <= #1 0;
 				  counter8 	  <= #1 7;
 			  end
 			  mir_crc_error 	 <= #1 0;
-			  bitcount 			 <= #1 0;
 		  end
 		st_stx_detected :
 		  begin
@@ -196,8 +198,10 @@ begin
 
 end
 
+
+
 assign mir_ifdlr_o = bitcount[18:3];
 assign mir_sto_detected = (rxstate == st_sto_detected);
-assign mir_rx_error = brd_o;
+assign mir_rx_error = brd_active;
 
 endmodule

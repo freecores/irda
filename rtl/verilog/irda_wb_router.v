@@ -53,21 +53,22 @@ output [31:0]	wb_dat_o;
 //
 
 	// outputs to fast mode
-assign f_wb_stb_i = fast_mode ? wb_stb_i : 0;
-assign f_wb_cyc_i = fast_mode ? wb_cyc_i : 0;
-assign f_wb_we_i =  fast_mode ? wb_we_i  : 0;
-assign f_wb_dat_i = fast_mode ? wb_dat_i : 32'b0;
-assign f_wb_addr_i = fast_mode ? wb_addr_i : 4'b0;
+assign f_wb_stb_i 	= fast_mode ? wb_stb_i : 0;
+assign f_wb_cyc_i 	= fast_mode ? wb_cyc_i : 0;
+assign f_wb_we_i 		=  fast_mode ? wb_we_i  : 0;
+assign f_wb_dat_i 	= fast_mode ? wb_dat_i : 32'b0;
+assign f_wb_addr_i 	= fast_mode ? wb_addr_i : 4'b0;
 
 	// outputs to uart
-assign u_wb_stb_i = ~fast_mode ? wb_stb_i : 0;
-assign u_wb_cyc_i = ~fast_mode ? wb_cyc_i : 0;
-assign u_wb_we_i =  ~fast_mode ? wb_we_i  : 0;
-assign u_wb_dat_i = ~fast_mode ? wb_dat_i : 8'b0;
-assign u_wb_addr_i = ~fast_mode ? wb_addr_i : 3'b0;
+// the check for zeros is when we write into MASTER register
+assign u_wb_stb_i 	= (~fast_mode) ? wb_stb_i : 0;
+assign u_wb_cyc_i 	= (~fast_mode) ? wb_cyc_i : 0;
+assign u_wb_we_i 		= (~fast_mode && wb_addr_i[3]==0) ? wb_we_i  : 0;
+assign u_wb_dat_i 	= (~fast_mode) ? wb_dat_i : 8'b0;
+assign u_wb_addr_i 	= (~fast_mode) ? wb_addr_i : 3'b0;
 
 	// outputs to wishbone
-assign wb_ack_o = fast_mode ? f_wb_ack_o : u_wb_ack_o;
-assign wb_dat_o = fast_mode ? f_wb_dat_o : {24'b0, u_wb_dat_o};
+assign wb_ack_o 		= fast_mode ? f_wb_ack_o : u_wb_ack_o;
+assign wb_dat_o 		= fast_mode ? f_wb_dat_o : {24'b0, u_wb_dat_o};
 
 endmodule
