@@ -1,13 +1,20 @@
 `include "irda_defines.v"
 
-module irda_master_register (clk, wb_rst_i, wb_addr_i, wb_dat_i, we_i, master, 
-		fast_mode, mir_mode, mir_half, fir_mode, tx_select, loopback_enable, use_dma);
+module irda_master_register (/*AUTOARG*/
+// Outputs
+master, mir_mode, mir_half, fir_mode, fast_mode, tx_select, 
+loopback_enable, use_dma, 
+// Inputs
+wb_clk_i, wb_rst_i, wb_adr_i, wb_dat_i, wb_we_i, wb_stb_i, wb_cyc_i
+);
 
-input				clk;
+input				wb_clk_i;
 input				wb_rst_i;
-input		[3:0]	wb_addr_i;
+input		[3:0]	wb_adr_i;
 input		[7:1]	wb_dat_i;
-input				we_i;
+input				wb_we_i;
+input				wb_stb_i;
+input				wb_cyc_i;
 output	[7:1]	master;
 output			mir_mode;	// MIR mode selected (fast or slow)
 output			mir_half;	// 1 if half speed MIR is selected
@@ -17,18 +24,18 @@ output			tx_select;  // 1 - transmitter mode selected, 0 - receiver mode]
 output			loopback_enable; // loopback mode enable output
 output			use_dma;    // bit 7 (DMA use)
 
-
-
 reg		[7:1]	master;
-wire		[3:0]	wb_addr_i;
+wire		[3:0]	wb_adr_i;
 wire		[7:1]	wb_dat_i;
 
-always @(posedge clk or posedge wb_rst_i)
+wire 				we_i = wb_we_i & wb_stb_i & wb_cyc_i;
+
+always @(posedge wb_clk_i or posedge wb_rst_i)
 begin
 	if (wb_rst_i) begin
 		master	<= #1 0;
 	end else begin
-		if (we_i && wb_addr_i == `IRDA_MASTER)
+		if (we_i && wb_adr_i == `IRDA_MASTER)
 			master	<= #1 wb_dat_i;
 	end
 end

@@ -1,56 +1,62 @@
 `include "irda_defines.v"
+`include "timescale.v"
 
 module irda_top (wb_clk_i, wb_rst_i, wb_adr_i, wb_dat_i, wb_dat_o, wb_we_i, wb_stb_i, wb_cyc_i,
 	wb_ack_o, int_o, dma_req_t_o, dma_ack_t_i, dma_req_r_o, dma_ack_r_i,
 	tx_pad_o, rx_pad_i);
 
-parameter 							 irda_addr_width = 4;
-parameter 							 irda_data_width = 32;
+parameter 							irda_addr_width = 4;
+parameter 							irda_data_width = 32;
 
-input 								 wb_clk_i;
-input 								 wb_rst_i;
-input [irda_addr_width-1:0] 	 wb_adr_i;
-input [irda_data_width-1:0] 	 wb_dat_i;
-output [irda_data_width-1:0] 	 wb_dat_o;
-input 								 wb_we_i;
-input 								 wb_stb_i;
-input 								 wb_cyc_i;
-output 								 wb_ack_o;
-output 								 int_o;
-output 								 dma_req_t_o;  // request to fill transmitter
-input 								 dma_ack_t_i;
-output 								 dma_req_r_o;  // request to empty receiver
-input 								 dma_ack_r_i;
-output 								 tx_pad_o;
-input 								 rx_pad_i;
+input 								wb_clk_i;
+input 								wb_rst_i;
+input [irda_addr_width-1:0] 	wb_adr_i;
+input [irda_data_width-1:0] 	wb_dat_i;
+output [irda_data_width-1:0] 	wb_dat_o;
+input 								wb_we_i;
+input 								wb_stb_i;
+input 								wb_cyc_i;
+output 								wb_ack_o;
+output 								int_o;
+output 								dma_req_t_o;  // request to fill transmitter
+input 								dma_ack_t_i;
+output 								dma_req_r_o;  // request to empty receiver
+input 								dma_ack_r_i;
+output 								tx_pad_o;
+input 								rx_pad_i;
 
-wire [31:0] 						 wb_dat_i;
-wire [31:0] 						 f_wb_dat_i;
-wire [7:0] 							 u_wb_dat_i;
-wire [31:0] 						 wb_dat_o;
-wire [31:0] 						 f_wb_dat_o;
-wire [7:0] 							 u_wb_dat_o;
-wire [3:0] 							 wb_adr_i;
-wire [3:0] 							 f_wb_addr_i;
-wire [2:0] 							 u_wb_addr_i;
+wire [31:0] 						wb_dat_i;
+wire [31:0] 						f_wb_dat_i;
+wire [7:0] 							u_wb_dat_i;
+wire [31:0] 						wb_dat_o;
+wire [31:0] 						f_wb_dat_o;
+wire [7:0] 							u_wb_dat_o;
+wire [3:0] 							wb_adr_i;
+wire [3:0] 							f_wb_addr_i;
+wire [2:0] 							u_wb_addr_i;
 
-wire [7:1] 							 master;
-wire [6:0] 							 f_ier;
-wire [7:0] 							 f_iir;
-wire [7:0] 							 f_fcr;
-wire [1:0] 							 f_lcr;
-wire [15:0] 						 f_ofdlr;
-wire [15:0] 						 mir_ifdlr_o;
-wire [15:0] 						 fir_ifdlr_o;
-wire [`IRDA_F_CDR_WIDTH-1:0] 	 f_cdr;
-wire [`IRDA_FIFO_WIDTH-1:0] 	 txfifo_dat_i;
-wire [`IRDA_FIFO_WIDTH-1:0] 	 txfifo_dat_o;
-wire [`IRDA_FIFO_WIDTH-1:0] 	 rxfifo_dat_i;
-wire [`IRDA_FIFO_WIDTH-1:0] 	 rxfifo_dat_o;
-wire [`IRDA_FIFO_POINTER_W:0]  txfifo_count;
-wire [`IRDA_FIFO_POINTER_W:0]  rxfifo_count;
-wire [2:0] 							 fir_state;
-wire [2:0] 							 mir_state;
+wire [7:1] 							master;
+wire [6:0] 							f_ier;
+wire [7:0] 							f_iir;
+wire [7:0] 							f_fcr;
+wire [1:0] 							f_lcr;
+wire [15:0] 						f_ofdlr;
+wire [15:0] 						mir_ifdlr_o;
+wire [15:0] 						fir_ifdlr_o;
+wire [15:0] 						f_ifdlr;
+wire [`IRDA_F_CDR_WIDTH-1:0] 	f_cdr;
+
+wire [`IRDA_FIFO_WIDTH-1:0] 	fir_rxfifo_dat_i;
+wire [`IRDA_FIFO_WIDTH-1:0] 	mir_rxfifo_dat_i;
+wire [`IRDA_FIFO_WIDTH-1:0] 	rxfifo_dat_i;
+
+wire [`IRDA_FIFO_WIDTH-1:0] 	txfifo_dat_i;
+wire [`IRDA_FIFO_WIDTH-1:0] 	txfifo_dat_o;
+wire [`IRDA_FIFO_WIDTH-1:0] 	rxfifo_dat_o;
+wire [`IRDA_FIFO_POINTER_W:0] txfifo_count;
+wire [`IRDA_FIFO_POINTER_W:0] rxfifo_count;
+wire [2:0] 							fir_state;
+wire [2:0] 							mir_state;
 
 
 // WISHBONE bus interface
@@ -61,25 +67,29 @@ irda_wb wb(
 			.wb_cyc_i(	f_wb_cyc_i	),
 			.wb_we_i(	f_wb_we_i	),
 			.wb_ack_o(	f_wb_ack_o	),
-			.we_i(		we_i		)
+			.we_i(		we_i			),
+			.re_i(		re_i			)
 		);
 
 // Master Control Register
-irda_master_register master_reg(
-			.clk(					wb_clk_i				),
-			.wb_rst_i(			wb_rst_i			),
-			.wb_addr_i(			wb_adr_i		),
-			.wb_dat_i(			wb_dat_i[7:1]	),
-			.we_i(				wb_we_i & wb_stb_i & wb_cyc_i	),
-			.master(				master			),
-			.fast_mode(			fast_mode		),
-			.mir_mode(			mir_mode			),
-			.mir_half(			mir_half			),
-			.fir_mode(			fir_mode			),
-			.tx_select(			tx_select		),
-			.loopback_enable(	loopback_enable),
-			.use_dma(			use_dma			)
-		);
+irda_master_register master_reg(/*AUTOINST*/
+										  // Outputs
+										  .master (master[7:1]),
+										  .mir_mode(mir_mode),
+										  .mir_half(mir_half),
+										  .fir_mode(fir_mode),
+										  .fast_mode(fast_mode),
+										  .tx_select(tx_select),
+										  .loopback_enable(loopback_enable),
+										  .use_dma(use_dma),
+										  // Inputs
+										  .wb_clk_i(wb_clk_i),
+										  .wb_rst_i(wb_rst_i),
+										  .wb_adr_i(wb_adr_i[3:0]),
+										  .wb_dat_i(wb_dat_i[7:1]),
+										  .wb_we_i(wb_we_i),
+										  .wb_stb_i(wb_stb_i),
+										  .wb_cyc_i(wb_cyc_i));
 
 // Registers I/O
 irda_reg regs(
@@ -88,8 +98,9 @@ irda_reg regs(
 			.wb_addr_i(	f_wb_addr_i		),
 			.wb_dat_i(	f_wb_dat_i		),
 			.f_wb_we_i(	f_wb_we_i		),
-			.f_ifdlr(	fir_mode ? fir_ifdlr_o : mir_ifdlr_o ),
+			.f_ifdlr(	f_ifdlr			),
 			.f_iir(		f_iir				),
+			.rxfifo_dat_o(rxfifo_dat_o	),
 			.f_ier(		f_ier				),
 			.f_fcr(		f_fcr				),
 			.f_lcr(		f_lcr				),
@@ -97,7 +108,10 @@ irda_reg regs(
 			.f_cdr(		f_cdr				),
 			.txfifo_add(txfifo_add		),
 			.f_wb_dat_o(f_wb_dat_o		),
-			.en_reload(	en_reload		)
+			.en_reload(	en_reload		),
+			.f_iir_read(f_iir_read		),
+			.rxfifo_remove(rxfifo_remove),
+			.re_i(re_i)
 		);
 
 // Transmitter fifo
@@ -205,8 +219,8 @@ irda_mir_rx mir_rx(
 		.rx_i(				mir_dec_o			), // from mir_dec
 		.mir_rxbit_enable(mir_rxbit_enable	),
 		.mir_rx_restart(  f_fcr[2]				),
-		.rxfifo_dat_i(		rxfifo_dat_i		),
-		.rxfifo_add(		rxfifo_add			),
+		.rxfifo_dat_i(		mir_rxfifo_dat_i	),
+		.rxfifo_add(		mir_rxfifo_add		),
 		.mir_crc_error(	mir_crc_error		),
 		.mir_ifdlr_o (		mir_ifdlr_o 	  	),
 		.mir_sto_detected(mir_sto_detected	),
@@ -259,15 +273,15 @@ irda_fir_rx fir_rx(
 		.wb_rst_i(			wb_rst_i				),
 		.fast_enable(		fast_enable			),
 		.fir_rx8_enable(	fir_rx8_enable		),
-		.fir_rx_restart(	fir_rx_restart		),
+		.fir_rx_restart(	f_fcr[2]		),
 		.fir_rx4_enable(	fir_rx4_enable		),
 		.rx_i(				rx_pad_i				),
 		.fir_ifdlr_o(		fir_ifdlr_o			),
 		.fir_sto_detected(fir_sto_detected	),
 		.crc32_error(		crc32_error			),
 		.fir_rx_error(		fir_rx_error		),
-		.rxfifo_dat_i(		rxfifo_dat_i		),
-		.rxfifo_add(		rxfifo_add			)
+		.rxfifo_dat_i(		fir_rxfifo_dat_i	),
+		.rxfifo_add(		fir_rxfifo_add		)
 	);
 
 // UART module
@@ -286,12 +300,12 @@ uart_top	uart(
 		.int_o(			u_int_o		),
 		.stx_pad_o(		stx_pad_o	),
 		.srx_pad_i(		srx_pad_i	),
-		.rts_pad_o(		rts_pad_o),
-		.cts_pad_i(		cts_pad_i),
-//		.dtr_pad_o(		dtr_pad_o),     // not needed in IrDA
-		.dsr_pad_i(		1'b0			),
-		.ri_pad_i(		1'b0			),
-		.dcd_pad_i(		1'b0			)
+		.rts_pad_o(	  ),
+		.cts_pad_i(	  ),
+		.dtr_pad_o(	  ),     // not needed in IrDA
+		.dsr_pad_i(	  ),
+		.ri_pad_i(	  ),
+		.dcd_pad_i(	  )
 	);
 
 // SIR mode bit encoder
@@ -347,6 +361,22 @@ irda_wb_router wb_router(
 		.wb_ack_o(			wb_ack_o		),
 		.wb_dat_o(			wb_dat_o		) //24
 	);
+
+// Fast mode signals router
+irda_fast_mode_router fast_mode_router (/*AUTOINST*/
+													 // Outputs
+													 .rxfifo_add(rxfifo_add),
+													 .f_ifdlr(f_ifdlr[15:0]),
+													 .rxfifo_dat_i(rxfifo_dat_i[`IRDA_FIFO_WIDTH-1:0]),
+													 // Inputs
+													 .fir_mode(fir_mode),
+													 .fir_rxfifo_add(fir_rxfifo_add),
+													 .mir_rxfifo_add(mir_rxfifo_add),
+													 .fir_ifdlr_o(fir_ifdlr_o[15:0]),
+													 .mir_ifdlr_o(mir_ifdlr_o[15:0]),
+													 .fir_rxfifo_dat_i(fir_rxfifo_dat_i[`IRDA_FIFO_WIDTH-1:0]),
+													 .mir_rxfifo_dat_i(mir_rxfifo_dat_i[`IRDA_FIFO_WIDTH-1:0]));
+
 
 // Interrupts subsystem
 irda_interrupts ints(

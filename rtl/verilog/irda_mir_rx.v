@@ -71,7 +71,7 @@ irda_crc_rx_ccitt16 crc_rx(
 		.mir_rxbit_enable(mir_rxbit_enable	),
 		.bds_is_data_bit( bds_is_data_bit	),
 		.txdout(				txdout				),
-		.bdcrc(				bdcrc					),
+		.bdcrc(				1'b0					),
 		.crc16_par_o(		crc16_par_o			)
 	);
 
@@ -152,7 +152,7 @@ begin
 		  begin
 			  clrcrc <= #1 0;
 			  //// DEBUG
-			  $display("%m, %t Received #%d: %b", $time, bit_pos, bds_o); 
+	//		  $display("%m, %t Received #%d: %b", $time, bit_pos, bds_o); 
 			  //// END DEBUG
 				if (std_st_detected) begin  /// end of frame (STO) detected
 					/// DEBUG

@@ -64,12 +64,12 @@ irda_fir_4ppm_decoder ppm_dec(
 irda_crc32_rx crc32rx(
 		.clk(					clk				),
 		.wb_rst_i(			wb_rst_i			),
-		.clrcrc(				clrcrc			),
+		.clrcrc(				clrcrc			), /// <===
 		.fir_rx4_enable(	fir_rx4_enable	),
 		.txdin(				txdin				),
 		.crcndata(			1'b0				),
 		.txdout(				txdout			),
-		.bdcrc(				bdcrc				),
+		.bdcrc(				1'b0				),
 		.crc32_par_o(		crc32_par_o		)
 	);
 
