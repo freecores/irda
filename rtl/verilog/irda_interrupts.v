@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 // Interrupt and DMA module
 module irda_interrupts (clk, wb_rst_i, f_ier, rxfifo_trigger_level, txfifo_trigger_level,  rxfifo_count,
 			u_int_o, int_o, f_iir, fir_sto_detected, mir_sto_detected,

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_out_mux (clk, wb_rst_i, sir_enc_o, mir_enc_o, fir_tx_o, sip_gen_o, 
 			fast_mode, tx_select, mir_mode, tx_pad_o);
 // sampled mux for IrDA main output 

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fir_bit_sync (clk, wb_rst_i, bs_restart, rx_i, fast_enable, bs_o);
 // synchronizes to bit level. the 40Mhz clock is used to sample on the third clock of each bit
 // syncronyzation starts on bs_restart

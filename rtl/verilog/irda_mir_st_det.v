@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_mir_st_det (clk, wb_rst_i, rx_i, std_restart, mir_rxbit_enable,
 	std_is_good_bit, std_st_detected, std_o);
 

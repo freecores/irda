@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_crc32_rx(clk, wb_rst_i, clrcrc, fir_rx4_enable, txdin, crcndata,txdout,bdcrc, crc32_par_o);
 /* ************************************************************************* */
 // compute 802.X CRC x32 x26 x23 x22 x16 x12 x11 x10 x8 x7 x5 x4 x2 x + 1

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fir_tx (clk, wb_rst_i, fir_tx8_enable, fir_tx4_enable,
 		count_mode, f_fcr, f_ofdlr, sip_o, sip_end_i, fir_tx_o,
 // Data controller interface

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_sip_gen (clk, wb_rst_i, fast_enable, sip_o, sip_end_i, sip_gen_o);
 
 input		clk;

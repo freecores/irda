@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fir_rx (clk, wb_rst_i, fast_enable, fir_rx8_enable, fir_rx_restart,
 		fir_rx4_enable, rx_i, fir_ifdlr_o, rxfifo_dat_i, rxfifo_add, crc32_error, fir_sto_detected, fir_rx_error);
 

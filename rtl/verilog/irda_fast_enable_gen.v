@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fast_enable_gen (clk, wb_rst_i, tx_select, loopback_enable, mir_mode, mir_half, fir_mode,
 		f_cdr, en_reload, fast_enable,
 		mir_txbit_enable, mir_rxbit_enable,

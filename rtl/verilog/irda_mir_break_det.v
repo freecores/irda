@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_mir_break_det (clk, wb_rst_i, mir_rxbit_enable, rx_i, brd_o);
 // break (brd_o) is asserted when count of 7 consequitive '1' is reached
 

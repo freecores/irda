@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_mir_st_gen (clk, wb_rst_i, st_restart, st_shift, mir_txbit_enable, st_out);
 input			clk;
 input			wb_rst_i;

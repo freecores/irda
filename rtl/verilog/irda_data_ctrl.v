@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_data_ctrl(clk, wb_rst_i, dc_restart, dc_restart_fir, next_data, next_data_fir, txfifo_count, 
 	mir_txbit_enable, fir_tx4_enable, fir_mode, mir_mode,
 	txfifo_dat_o, data_available,	txfifo_remove, data_o);

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_mir_rx (clk, wb_rst_i, rx_i, mir_rxbit_enable, mir_rx_restart,
 			rxfifo_dat_i, rxfifo_add, mir_crc_error, mir_ifdlr_o, mir_sto_detected, mir_rx_error );
 

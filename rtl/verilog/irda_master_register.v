@@ -1,4 +1,4 @@
-//`include "irda_defines.v"
+`include "irda_defines.v"
 
 module irda_master_register (clk, wb_rst_i, wb_addr_i, wb_dat_i, we_i, master, 
 		fast_mode, mir_mode, mir_half, fir_mode, tx_select, loopback_enable, use_dma);

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module  irda_mir_bit_stuffer (clk, wb_rst_i, bs_restart, 
 										// stuffer_shift_i,
 										stuffer_i, mir_txbit_enable,

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fir_flag_det (clk, wb_rst_i, fd_restart, fir_rx8_enable, bs_o, pa_det, sta_det, sto_det, 
 	break_det, fd_data_bit, fd_o);
 

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_crc_rx_ccitt16(clk, wb_rst_i, clrcrc, txdin, crcndata,
 							 bds_is_data_bit, mir_rxbit_enable, txdout, bdcrc, crc16_par_o);
 /* ************************************************************************* */

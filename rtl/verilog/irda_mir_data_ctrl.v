@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_mir_data_ctrl(clk, wb_rst_i, dc_restart, next_data, txfifo_empty, mir_tx_enabled,
 	txfifo_dat_o, data_available,	txfifo_remove, data_o);
 // This	block outputs the current next data	bit.

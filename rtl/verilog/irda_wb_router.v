@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_wb_router (
 	// Inputs to the core
 	fast_mode, wb_stb_i, wb_cyc_i,  wb_we_i, wb_dat_i, wb_addr_i,

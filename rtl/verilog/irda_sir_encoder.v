@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_sir_encoder (clk, wb_rst_i, fast_mode, fast_enable, sir_enc_o, stx_pad_o, tx_select);
 // The encoder encoder in normal power mode (not low power).
 // The fast_enable signal should work 

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fir_4ppm_decoder (clk, wb_rst_i, fir_rx8_enable, ppmd_restart,
 				fd_o, ppmd_o, ppmd_bad_chip);
 input		clk;

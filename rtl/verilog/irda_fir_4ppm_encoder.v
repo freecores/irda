@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fir_4ppm_encoder (clk, wb_rst_i, ppm_restart, fir_tx8_enable, fir_tx4_enable, 
 			next_data_fir, txdout, ppm_o);
 

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_mir_bit_destuffer (clk, wb_rst_i, bds_i, bds_restart, mir_rxbit_enable, std_is_good_bit,
 		bds_is_data_bit, bds_o);
 	

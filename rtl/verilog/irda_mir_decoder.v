@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_mir_decoder (clk, wb_rst_i, fast_enable, mir_mode, tx_select, rx_i, mir_dec_o);
 
 input		clk;

@@ -1,3 +1,4 @@
+`include "irda_defines.v"
 module irda_fir_flag_gen (clk, wb_rst_i, fir_tx4_enable, fir_tx8_enable, fir_gen_start, fir_flag, flag_gen_o, eof);
 // generates PA/STA/STO flags
 // fir_flag == 00 => 0 constant
