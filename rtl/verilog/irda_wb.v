@@ -17,7 +17,7 @@ begin
 	if (wb_rst_i) begin
 		wb_ack_o <= #1 0;
 	end else begin
-		wb_ack_o <= #1 wb_stb_i & wb_cyc_i; // one clock delay on acknowledge output
+		wb_ack_o <= #1 wb_stb_i & wb_cyc_i & ~wb_ack_o; // one clock delay on acknowledge output
 	end
 end
 
