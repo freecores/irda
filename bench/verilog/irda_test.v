@@ -102,19 +102,94 @@ begin
 	//			cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
 	//	$display("%m, %t, Sending %b", $time, 32'hA7F1F5CC);
 	cycle(1, `IRDA_F_LCR, 32'b10); // set count outgoing data mode
-	cycle(1, `IRDA_F_OFDLR, 16'd3); // 5 bytes to send
+	cycle(1, `IRDA_F_OFDLR, 16'd64); //bytes to send
 	
 	cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
 	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+		cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+		cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+		cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
 	#300;
-	wait (top.mir_tx.state == 0);	
+	wait (top.mir_tx.state == 0);
+	cycle(1, `IRDA_F_OFDLR, 16'd4); //bytes to send
 	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
 	#300;
 	wait (top.mir_tx.state == 0);
 	#200;
-	$finish;
+//	$finish;
 end // initial begin
 endtask // test_mir_tx
+
+
+/// FIR TX TEST TASK
+task test_fir_tx;
+
+begin
+	//	$monitor(">> %d, %b", $time, top.mir_tx_o);
+	#1		wb_rst_i = 1;
+	#10	wb_rst_i = 0;
+	wb_stb_i = 0;
+	wb_cyc_i = 0;
+	wb_we_i = 0;
+	cycle(1, `IRDA_MASTER, 32'b00001011);
+	cycle(1, `IRDA_F_CDR, 32'd200000);
+	cycle(1, `IRDA_F_FCR, 32'b10000011);
+	//			cycle(1, `IRDA_F_LCR, 32'b00);
+	//			cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+	//	$display("%m, %t, Sending %b", $time, 32'hA7F1F5CC);
+	cycle(1, `IRDA_F_LCR, 32'b10); // set count outgoing data mode
+/* -----\/----- EXCLUDED -----\/-----
+	cycle(1, `IRDA_F_OFDLR, 16'd64); //bytes to send
+	
+	cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+		cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+		cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+		cycle(1, `IRDA_TRANSMITTER, 32'h44332211);
+	cycle(1, `IRDA_TRANSMITTER, 32'h88776655);
+	cycle(1, `IRDA_TRANSMITTER, 32'hB1B2B3B4);
+	cycle(1, `IRDA_TRANSMITTER, 32'hA7F1F5CC);
+	#300;
+	wait (top.fir_tx.state == 0);
+ -----/\----- EXCLUDED -----/\----- */
+	cycle(1, `IRDA_F_OFDLR, 16'd2); //bytes to send
+	cycle(1, `IRDA_TRANSMITTER, 32'h0000A41B);
+	#300;
+	wait (top.fir_tx.state == 0);
+	#200;
+end // initial begin
+endtask // test_fir_tx
+
+task test_fir_rx;
+begin
+	#10	wb1_stb_i = 0;
+	wb1_cyc_i = 0;
+	wb1_we_i = 0;
+	cycle1(1, `IRDA_MASTER, 32'b00001001);
+	cycle1(1, `IRDA_F_CDR, 32'd200000);
+	cycle1(1, `IRDA_F_FCR, 32'b10000011);
+	cycle1(1, `IRDA_F_LCR, 32'b00);
+end
+endtask // test_fir_rx
 
 
 task test_mir_rx;
@@ -194,11 +269,18 @@ endtask // test_sir_rx
 
 // Transmitter
 initial
-  test_sir_tx;
+  test_fir_tx;
 
 // Receiver
 initial
-  test_sir_rx;
+  test_fir_rx;
   
-
+initial
+begin
+//	$dumpfile("irda.vcd");
+//	$dumpvars;
+//	$dumpon;
+//	#150000 $finish;
+	forever #20000 $display("%m, Reached time %t", $time);
+end
 endmodule

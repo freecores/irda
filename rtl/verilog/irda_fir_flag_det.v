@@ -21,9 +21,9 @@ reg	[4:0]		front;
 always @(posedge clk or posedge wb_rst_i)
 begin
 	if (wb_rst_i) begin
-		temp32 <= #1 0;
+		temp32 <= #1 32'hffffffff;
 	end else if (fd_restart) begin
-		temp32 <= #1 0;
+		temp32 <= #1 32'hffffffff;
 	end else if (fir_rx8_enable) begin
 		temp32[31:1] <= #1 temp32[30:0];
 		temp32[0]    <= #1 bs_o;
@@ -44,11 +44,11 @@ begin
 		front <= #1 0;
 	end else if (fir_rx8_enable) begin
 		if (pa_det)
-			front <= #1 15;
+			front <= #1 18;
 		else if (sta_det || sto_det)
-			front <= #1 0;
+			front <= #1 2;
 		else if (break_det)
-			front <= #1 23;
+			front <= #1 26;
 		else if (front != 31)
 			front <= #1 front + 1;
 	end

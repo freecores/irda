@@ -54,7 +54,7 @@ always @ (posedge clk or posedge wb_rst_i)
 begin
 	if (wb_rst_i)
 		txcrc <= #1  32'hffffffff;
-	else if (fir_tx4_enable)   /// <----
+	else if (fir_tx4_enable)
 		txcrc <= #1  nxtxcrc; // load D input (nxtxcrc) into flops
 end
 /* ********************************************************************** */
@@ -64,6 +64,5 @@ end
 // if crcndata = 0 , the data is passed by unchanged, if = 1 then
 // the crc register is inverted and transmitted.
 /* ********************************************************************** */
-wire txdout = (crcndata) ? (~txcrc[31] ^ bdcrc) : txdin; // don't invert
-// if bdcrc is 1
+wire txdout = (crcndata) ? (~txcrc[31] ^ bdcrc) : txdin; // don't invert  if bdcrc is 1
 endmodule

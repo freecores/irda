@@ -1,12 +1,13 @@
 `include "irda_defines.v"
-module irda_mir_decoder (clk, wb_rst_i, fast_enable, mir_mode, tx_select, rx_i, mir_dec_o);
+module irda_mir_decoder (clk, wb_rst_i, fast_enable, mir_mode, tx_select, rx_pad_i, negate_rx, mir_dec_o);
 
 input		clk;
 input		wb_rst_i;
 input		fast_enable;
 input		mir_mode;
 input		tx_select;
-input		rx_i;
+input		negate_rx;
+input		rx_pad_i;
 
 output	mir_dec_o;
 reg		mir_dec_o;
@@ -16,6 +17,8 @@ reg		mir_dec_o;
 parameter st0=0, st1=1, st2=2, st3=3;
 reg	[1:0] state;
 reg	zero; // zero output (a high condition was encountered in the four bits)
+
+wire 	rx_i = rx_pad_i ^ negate_rx;
 
 always @(posedge clk or posedge wb_rst_i)
 begin

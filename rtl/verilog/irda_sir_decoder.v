@@ -1,9 +1,10 @@
 `include "irda_defines.v"
-module irda_sir_decoder (clk, wb_rst_i, rx_i, fast_enable, sir_dec_o, tx_select, fast_mode);
+module irda_sir_decoder (clk, wb_rst_i, rx_pad_i, negate_rx, fast_enable, sir_dec_o, tx_select, fast_mode);
 
 input		clk;
 input		wb_rst_i;
-input		rx_i;
+input		rx_pad_i;
+input		negate_rx;
 input		fast_enable;
 input		tx_select;
 input		fast_mode;
@@ -13,6 +14,8 @@ reg		sir_dec_o;
 
 reg	[3:0] cnt16;
 reg		zero;
+
+wire 		rx_i = rx_pad_i ^ negate_rx;
 
 always @(posedge clk or posedge wb_rst_i)
 begin

@@ -82,6 +82,8 @@ irda_master_register master_reg(/*AUTOINST*/
 										  .tx_select(tx_select),
 										  .loopback_enable(loopback_enable),
 										  .use_dma(use_dma),
+										  .negate_tx(negate_tx),
+										  .negate_rx(negate_rx),
 										  // Inputs
 										  .wb_clk_i(wb_clk_i),
 										  .wb_rst_i(wb_rst_i),
@@ -234,7 +236,8 @@ irda_mir_decoder mir_dec(
 		.fast_enable(		fast_enable			),
 		.mir_mode(			mir_mode				),
 		.tx_select(			tx_select			),
-		.rx_i(				rx_pad_i					),
+		.rx_pad_i(			rx_pad_i				),
+		.negate_rx(			negate_rx			),
 		.mir_dec_o(			mir_dec_o			)
 	);
 
@@ -276,7 +279,8 @@ irda_fir_rx fir_rx(
 		.fir_rx8_enable(	fir_rx8_enable		),
 		.fir_rx_restart(	f_fcr[2]		),
 		.fir_rx4_enable(	fir_rx4_enable		),
-		.rx_i(				rx_pad_i				),
+		.rx_pad_i(			rx_pad_i				),
+		.negate_rx(			negate_rx			),				 
 		.fir_ifdlr_o(		fir_ifdlr_o			),
 		.fir_sto_detected(fir_sto_detected	),
 		.crc32_error(		crc32_error			),
@@ -322,9 +326,10 @@ irda_sir_encoder sir_enc(
 
 // SIR mode bit decoder
 irda_sir_decoder sir_dec(
-		.clk(				wb_clk_i			),
+		.clk(				wb_clk_i		),
 		.wb_rst_i(		wb_rst_i		),
-		.rx_i(			rx_pad_i			),
+		.rx_pad_i(		rx_pad_i		),
+		.negate_rx(		negate_rx	),
 		.fast_enable(	fast_enable	),
 		.sir_dec_o(		srx_pad_i	),
 		.tx_select(		tx_select	),
@@ -420,7 +425,8 @@ irda_out_mux out_mux(
 		.sip_gen_o(		sip_gen_o	), 
 		.fast_mode(		fast_mode	),
 		.tx_select(		tx_select	), 
-		.mir_mode(		mir_mode		), 
+		.mir_mode(		mir_mode		),
+		.negate_tx(		negate_tx	),
 		.tx_pad_o(		tx_pad_o		)
 	);
 
