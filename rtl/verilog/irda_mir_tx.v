@@ -159,7 +159,7 @@ begin
 			if((count_mode && (ofdl_c[18:3]==f_ofdlr)) || (!count_mode && !data_available && underrun_action==1) ) begin
 				state 		  <= #1 st_crc_out1;
 				/// DEBUG
-				$display("%m, %t CRCOUT: %x", $time, ~crc16.nxtxcrc);
+//				$display("%m, %t CRCOUT: %x", $time, ~crc16.nxtxcrc);
 				/// END DEBUG
 				crcndata 	  <= #1 1;
 				mux_select 	  <= #1 2'b10;

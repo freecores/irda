@@ -56,7 +56,7 @@ begin
 	if (wb_rst_i)
 	  std_is_good_bit <= #1 0;
 	else
-	  std_is_good_bit = ( front == 0);
+	  std_is_good_bit <= #1 ( front == 0);
 end
 
 endmodule

@@ -1,15 +1,15 @@
 `include "irda_defines.v"
 
-module irda_top (clk, wb_rst_i, wb_addr_i, wb_dat_i, wb_dat_o, wb_we_i, wb_stb_i, wb_cyc_i,
+module irda_top (wb_clk_i, wb_rst_i, wb_adr_i, wb_dat_i, wb_dat_o, wb_we_i, wb_stb_i, wb_cyc_i,
 	wb_ack_o, int_o, dma_req_t_o, dma_ack_t_i, dma_req_r_o, dma_ack_r_i,
 	tx_pad_o, rx_pad_i);
 
 parameter 							 irda_addr_width = 4;
 parameter 							 irda_data_width = 32;
 
-input 								 clk;
+input 								 wb_clk_i;
 input 								 wb_rst_i;
-input [irda_addr_width-1:0] 	 wb_addr_i;
+input [irda_addr_width-1:0] 	 wb_adr_i;
 input [irda_data_width-1:0] 	 wb_dat_i;
 output [irda_data_width-1:0] 	 wb_dat_o;
 input 								 wb_we_i;
@@ -30,7 +30,7 @@ wire [7:0] 							 u_wb_dat_i;
 wire [31:0] 						 wb_dat_o;
 wire [31:0] 						 f_wb_dat_o;
 wire [7:0] 							 u_wb_dat_o;
-wire [3:0] 							 wb_addr_i;
+wire [3:0] 							 wb_adr_i;
 wire [3:0] 							 f_wb_addr_i;
 wire [2:0] 							 u_wb_addr_i;
 
@@ -55,7 +55,7 @@ wire [2:0] 							 mir_state;
 
 // WISHBONE bus interface
 irda_wb wb(
-			.clk(			clk		),
+			.clk(			wb_clk_i		),
 			.wb_rst_i(	wb_rst_i	),
 			.wb_stb_i(	f_wb_stb_i	),
 			.wb_cyc_i(	f_wb_cyc_i	),
@@ -66,9 +66,9 @@ irda_wb wb(
 
 // Master Control Register
 irda_master_register master_reg(
-			.clk(					clk				),
+			.clk(					wb_clk_i				),
 			.wb_rst_i(			wb_rst_i			),
-			.wb_addr_i(			wb_addr_i		),
+			.wb_addr_i(			wb_adr_i		),
 			.wb_dat_i(			wb_dat_i[7:1]	),
 			.we_i(				wb_we_i & wb_stb_i & wb_cyc_i	),
 			.master(				master			),
@@ -83,7 +83,7 @@ irda_master_register master_reg(
 
 // Registers I/O
 irda_reg regs(
-			.clk(			clk				),
+			.clk(			wb_clk_i				),
 			.wb_rst_i(	wb_rst_i	   	),
 			.wb_addr_i(	f_wb_addr_i		),
 			.wb_dat_i(	f_wb_dat_i		),
@@ -102,7 +102,7 @@ irda_reg regs(
 
 // Transmitter fifo
 irda_fifo tx_fifo(
-			.clk(				clk				),
+			.clk(				wb_clk_i				),
 			.wb_rst_i(		wb_rst_i			),
 			.fifo_clear(	f_fcr[6]			), // clear TX fifo bit
 			.fifo_dat_i(	wb_dat_i			),
@@ -116,7 +116,7 @@ irda_fifo tx_fifo(
 
 // Generator of enable signals for FIR and MIR logic
 irda_fast_enable_gen f_en_gen(
-			.clk(					clk				),
+			.clk(					wb_clk_i				),
 			.wb_rst_i(			wb_rst_i			),
 			.f_cdr(				f_cdr				),
 			.tx_select(			tx_select		),
@@ -139,7 +139,7 @@ irda_fast_enable_gen f_en_gen(
 wire count_mode = f_lcr[1];
 
 irda_mir_tx mir_tx(
-			.clk(					clk				),
+			.clk(					wb_clk_i				),
 			.wb_rst_i(			wb_rst_i			),
 			.mir_txbit_enable(mir_txbit_enable	),
 			.count_mode(		count_mode		),
@@ -156,7 +156,7 @@ irda_mir_tx mir_tx(
 
 // MIR bit encoder
 irda_mir_encoder mir_enc(
-		.clk(					clk					),
+		.clk(					wb_clk_i					),
 		.wb_rst_i(			wb_rst_i				),
 		.mir_tx_o(			mir_tx_o				),
 		.mir_mode(			mir_mode				),
@@ -167,7 +167,7 @@ irda_mir_encoder mir_enc(
 
 //	Next data bit controller for MIR/FIR modes
 irda_data_ctrl d_c(
-		.clk(						clk					),
+		.clk(						wb_clk_i					),
 		.wb_rst_i(				wb_rst_i				),
 		.dc_restart(			dc_restart			),
 		.dc_restart_fir(		dc_restart_fir		),
@@ -186,7 +186,7 @@ irda_data_ctrl d_c(
 
 // Receiver fifo
 irda_fifo rx_fifo(
-			.clk(				clk				),
+			.clk(				wb_clk_i				),
 			.wb_rst_i(		wb_rst_i			),
 			.fifo_clear(	f_fcr[2]			), // clear RX fifo bit
 			.fifo_dat_i(	rxfifo_dat_i	),
@@ -200,7 +200,7 @@ irda_fifo rx_fifo(
 
 // MIR MODE RECEIVER
 irda_mir_rx mir_rx(
-		.clk(					clk					),
+		.clk(					wb_clk_i					),
 		.wb_rst_i(			wb_rst_i				),
 		.rx_i(				mir_dec_o			), // from mir_dec
 		.mir_rxbit_enable(mir_rxbit_enable	),
@@ -215,7 +215,7 @@ irda_mir_rx mir_rx(
 
 // MIR bit decoder
 irda_mir_decoder mir_dec(
-		.clk(					clk					),
+		.clk(					wb_clk_i					),
 		.wb_rst_i(			wb_rst_i				),
 		.fast_enable(		fast_enable			),
 		.mir_mode(			mir_mode				),
@@ -226,7 +226,7 @@ irda_mir_decoder mir_dec(
 
 // FIR MODE TRANSMITTER
 irda_fir_tx fir_tx(
-		.clk(					clk					),
+		.clk(					wb_clk_i					),
 		.wb_rst_i(			wb_rst_i				),
 		.fir_tx8_enable(	fir_tx8_enable		),
 		.fir_tx4_enable(	fir_tx4_enable		),
@@ -244,7 +244,7 @@ irda_fir_tx fir_tx(
 
 // SIP signal generator
 irda_sip_gen sip_gen(
-		.clk(					clk					),
+		.clk(					wb_clk_i					),
 		.wb_rst_i(			wb_rst_i				),
 		.fast_enable(		fast_enable			),
 		.sip_o(				sip_o					),
@@ -255,7 +255,7 @@ irda_sip_gen sip_gen(
 
 // FIR Receiver
 irda_fir_rx fir_rx(
-		.clk(					clk					),
+		.clk(					wb_clk_i					),
 		.wb_rst_i(			wb_rst_i				),
 		.fast_enable(		fast_enable			),
 		.fir_rx8_enable(	fir_rx8_enable		),
@@ -274,7 +274,7 @@ irda_fir_rx fir_rx(
 
 //Uart  module is not yet well inserted into the code
 uart_top	uart(
-		.clk(				clk			),
+		.clk(				wb_clk_i			),
 		.wb_rst_i(		wb_rst_i		),
 		.wb_addr_i(		u_wb_addr_i ),
 		.wb_dat_i(		u_wb_dat_i	),
@@ -296,7 +296,7 @@ uart_top	uart(
 
 // SIR mode bit encoder
 irda_sir_encoder sir_enc(
-		.clk(				clk			),
+		.clk(				wb_clk_i			),
 		.wb_rst_i(		wb_rst_i		),
 		.fast_mode(		fast_mode	),
 		.fast_enable(	fast_enable	),
@@ -307,7 +307,7 @@ irda_sir_encoder sir_enc(
 
 // SIR mode bit decoder
 irda_sir_decoder sir_dec(
-		.clk(				clk			),
+		.clk(				wb_clk_i			),
 		.wb_rst_i(		wb_rst_i		),
 		.rx_i(			rx_pad_i			),
 		.fast_enable(	fast_enable	),
@@ -324,7 +324,7 @@ irda_wb_router wb_router(
 		.wb_cyc_i(			wb_cyc_i		),
 		.wb_we_i(			wb_we_i		),
 		.wb_dat_i(			wb_dat_i		), //5
-		.wb_addr_i(			wb_addr_i	),
+		.wb_addr_i(			wb_adr_i	),
 		// outputs to fast mode
 		.f_wb_stb_i(		f_wb_stb_i	),
 		.f_wb_cyc_i(		f_wb_cyc_i	),
@@ -350,7 +350,7 @@ irda_wb_router wb_router(
 
 // Interrupts subsystem
 irda_interrupts ints(
-		.clk(							clk					),
+		.clk(							wb_clk_i					),
 		.wb_rst_i(					wb_rst_i				),
 		.f_ier(						f_ier					),
 		.rxfifo_trigger_level(	f_fcr[1:0]			),
@@ -381,7 +381,7 @@ irda_interrupts ints(
 
 // output mux
 irda_out_mux out_mux(
-		.clk(				clk			), 
+		.clk(				wb_clk_i			), 
 		.wb_rst_i(		wb_rst_i		), 
 		.sir_enc_o(		sir_enc_o	),
 		.mir_enc_o(		mir_tx_encoded_o),
